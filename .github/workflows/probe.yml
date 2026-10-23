@@ -7,23 +7,24 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Docs site
+      - name: Official API collection (api-docs.torbox.app)
         run: |
-          curl -sL --max-time 25 https://api-docs.torbox.app/ -o docs.html; wc -c docs.html
-          grep -oE '(href|src)="[^"]+"' docs.html | head -40
-          grep -oiE '[a-z0-9/_.-]*(openapi|swagger|spec)[a-z0-9/_.-]*\.(json|yaml|yml)' docs.html | sort -u | head
-          for u in openapi.json swagger.json api/openapi.json docs/openapi.json openapi.yaml llms.txt llms-full.txt sitemap.xml; do printf "%s " $u; curl -s --max-time 15 -o /dev/null -w "%{http_code} %{content_type}\n" https://api-docs.torbox.app/$u; done
-      - name: llms.txt
-        run: curl -sL --max-time 25 https://api-docs.torbox.app/llms.txt | head -c 6000; echo
-      - name: Live unauthenticated endpoints
+          curl -sL --max-time 30 "https://api-docs.torbox.app/api/collections/29572726/2s9YXo1zX4?environment=29572726-1b0d18ed-d45c-43f1-ad3f-253c7d41f915&segregateAuth=true&versionTag=latest" -o col.json
+          wc -c col.json; jq -r 'keys' col.json | tr -d '\n'; echo
+          # One line per request: folder path, method, url, query keys, body keys
+          jq -r '
+            def walk_items(p): .[] | if .item then (.item | walk_items(p + [.name])) else {p: (p|join(" / ")), n: .name, r: .request} end;
+            (.item // .collection.item) | walk_items([]) |
+            "\(.p) | \(.n) | \(.r.method) \((.r.url.raw // .r.url // "") | tostring | sub("\\{\\{[a-z_]+\\}\\}";"")) | q=\([.r.url.query[]?.key] | join(",")) | b=\(.r.body.mode // "-"):\(([.r.body.formdata[]?.key] + [.r.body.urlencoded[]?.key]) | join(","))\(.r.body.raw // "" | gsub("\\s+";" ") | .[0:160])"
+          ' col.json
+      - name: Descriptions of selected endpoints
         run: |
-          j(){ echo "=== $1"; curl -sL --max-time 25 "$1" | head -c ${2:-1500}; echo; }
-          j https://api.torbox.app/
-          j https://api.torbox.app/v1/api/stats
-          j https://api.torbox.app/v1/api/changelogs/json 1200
-          j "https://api.torbox.app/v1/api/speedtest?test_length=short" 2500
-          j "https://api.torbox.app/v1/api/torrents/torrentinfo?hash=dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&timeout=10" 1500
-          j https://api.torbox.app/v1/api/webdl/hosters 1200
-          j https://api.torbox.app/v1/api/user/me 400
-          j https://search-api.torbox.app/ 800
-          j "https://search-api.torbox.app/torrents/search/sintel?metadata=true" 600
+          jq -r '
+            def walk_items: .[] | if .item then (.item | walk_items) else . end;
+            (.item // .collection.item) | walk_items |
+            select(.name | test("Control|Search|Settings|Edit|Stream|Subscription|Transaction|Device|Engine|Vendor|Integration|Usenet Download|Web Download|Create Torrent|Queued"; "i")) |
+            "### \(.name)\n\((.request.description // "") | tostring | gsub("\\s+";" ") | .[0:900])\n"
+          ' col.json | head -c 60000
+      - name: Live response shapes
+        run: |
+          curl -s --max-time 20 https://api.torbox.app/v1/api/changelogs/json | jq -c '.data[0] | with_entries(.value |= (tostring | .[0:40]))'
