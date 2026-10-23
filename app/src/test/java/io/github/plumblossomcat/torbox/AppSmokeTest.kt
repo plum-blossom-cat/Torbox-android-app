@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodes
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
@@ -59,6 +60,7 @@ object FakeTorBox {
                         path == "/v1/api/torrents/mylist" -> ok("[$TORRENT]")
                         path.endsWith("/mylist") -> ok("[]")
                         path.endsWith("/checkcached") -> ok("{}")
+                        path.endsWith("/torrents/createtorrent") -> ok("""{"torrent_id":4020,"hash":"dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c","auth_id":"x"}""")
                         path.endsWith("/requestdl") -> ok("\"https://cdn.example.com/file.mkv\"")
                         path.endsWith("/notifications/mynotifications") -> ok("""[{"id":3,"title":"Download ready","message":"Big Buck Bunny finished.","created_at":"2026-10-23T10:00:00Z"}]""")
                         path.contains("/queued/getqueued") -> ok("[]")
@@ -92,7 +94,7 @@ class AppSmokeTest {
         compose.waitUntilAtLeastOneExists(hasText(text, substring = true), timeout)
 
     @Test
-    fun signInBrowseAndOpenADownload() {
+    fun signInBrowseOpenAndAdd() {
         // Sign in through the real form.
         waitForText("Your library")
         compose.onNode(hasSetTextAction()).performTextInput(FakeTorBox.KEY)
@@ -112,6 +114,12 @@ class AppSmokeTest {
         compose.onNodeWithText("Subs").assertExists()
         compose.onNodeWithText("Hash".uppercase()).assertExists()
 
+        // Tapping a file offers what to do with it; copying fetches a fresh CDN link.
+        compose.onNodeWithText("Big Buck Bunny.mkv").performClick()
+        waitForText("Copy download link")
+        compose.onNodeWithText("Copy download link").performClick()
+        compose.waitUntil(10_000) { FakeTorBox.requests.any { it.startsWith("GET /v1/api/torrents/requestdl") } }
+
         // Back, then Account shows the profile.
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         waitForText("Torrents")
@@ -120,6 +128,18 @@ class AppSmokeTest {
         compose.onNode(hasScrollAction()).performScrollToNode(hasText("Settings"))
         compose.onNodeWithText("Settings").performClick()
         waitForText("When you tap a file".uppercase())
+
+        // Add a magnet from Home; it opens on its own page.
+        compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+        waitForText("maya.okafor@example.com")
+        compose.onAllNodesWithText("Home").onFirst().performClick()
+        waitForText("Add to TorBox".uppercase())
+        compose.onNodeWithText("Add").performClick()
+        waitForText("New download")
+        compose.onAllNodes(hasSetTextAction()).onFirst().performTextInput("magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Big+Buck+Bunny")
+        compose.onNodeWithText("Add to TorBox").performClick()
+        waitForText("#4020")
+        assertThat(FakeTorBox.requests).contains("POST /v1/api/torrents/createtorrent")
 
         assertThat(FakeTorBox.requests).contains("GET /v1/api/user/me")
         assertThat(FakeTorBox.requests).contains("GET /v1/api/torrents/mylist")
