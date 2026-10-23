@@ -42,6 +42,8 @@ class UtilTest {
         assertThat(Format.relative(Instant.parse("2024-06-01T00:00:00Z"), now, ZoneOffset.UTC)).isEqualTo("1 Jun 2024")
         assertThat(Format.compact(1_234_567)).isEqualTo("1.2M")
         assertThat(Format.compact(950)).isEqualTo("950")
+        assertThat(Format.shortDateTime(Instant.parse("2025-01-09T08:05:00Z"), now, ZoneOffset.UTC)).isEqualTo("9 Jan, 08:05")
+        assertThat(Format.shortDateTime(Instant.parse("2024-12-31T23:00:00Z"), now, ZoneOffset.UTC)).isEqualTo("31 Dec 2024, 23:00")
     }
 
     @Test

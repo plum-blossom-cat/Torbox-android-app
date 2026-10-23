@@ -219,7 +219,7 @@ private fun FeedRow(feed: RssFeedDto, onClick: () -> Unit, onLongClick: () -> Un
             Text(
                 listOfNotNull(
                     feed.kind().label,
-                    "every ${feed.scanInterval} min",
+                    "every " + if (feed.scanInterval >= 60 && feed.scanInterval % 60 == 0L) "${feed.scanInterval / 60} h" else "${feed.scanInterval} min",
                     feed.state?.takeIf { it.isNotBlank() && it != "idle" },
                     (feed.lastChecked ?: feed.updatedAt)?.let { "checked " + Format.relative(Timestamps.parse(it)) },
                 ).joinToString("  ·  "),

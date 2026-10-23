@@ -73,6 +73,7 @@ import io.github.plumblossomcat.torbox.ui.components.TbSheet
 import io.github.plumblossomcat.torbox.ui.components.TopBar
 import io.github.plumblossomcat.torbox.ui.components.VerticalHairline
 import io.github.plumblossomcat.torbox.ui.components.WhileVisible
+import io.github.plumblossomcat.torbox.ui.components.humanState
 import io.github.plumblossomcat.torbox.ui.components.icon
 import io.github.plumblossomcat.torbox.ui.components.isStreamable
 import io.github.plumblossomcat.torbox.ui.components.kind
@@ -211,6 +212,10 @@ fun DetailContent(
                 item(key = "stats") {
                     Spacer(Modifier.height(8.dp))
                     StatGrid(stats(item), Modifier.padding(horizontal = Gutter))
+                    item.tracker?.takeIf { it.isNotBlank() }?.let { tracker ->
+                        Hairline(Modifier.padding(horizontal = Gutter))
+                        StatGrid(listOf(Stat("Tracker", tracker.substringAfter("://").substringBefore('/'))), Modifier.padding(horizontal = Gutter), columns = 1)
+                    }
                     if (item.hash.isNotBlank()) {
                         Hairline(Modifier.padding(horizontal = Gutter))
                         HashRow(item.hash) { onCopy(item.hash, "Hash") }
@@ -341,8 +346,12 @@ private fun Header(item: Transfer) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             StateBadge(item.state)
             if (item.cached) Tag("Cached")
-            if (item.rawState.isNotBlank() && !item.rawState.equals(item.state.label, ignoreCase = true)) {
-                Text(item.rawState, style = Tb.type.monoSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            // Only show TorBox's own wording when it adds something the badge doesn't say.
+            val detail = humanState(item.rawState)
+            val redundant = detail == null || detail.equals(item.state.label, true) ||
+                item.rawState.lowercase() in setOf("cached", "completed", "downloading", "uploading", "paused", "queued")
+            if (!redundant && item.state != TransferState.PREPARING) {
+                Text(detail!!, style = Tb.type.monoSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
         val showMeter = item.state.isActive || (item.state == TransferState.PAUSED && item.progress < 1.0)
@@ -397,7 +406,7 @@ private fun ActionStrip(
                 }
                 VerticalHairline()
                 StripButton(
-                    "Reannounce", TbIcons.Repeat, { onControl(ControlOp.Torrent.REANNOUNCE, "Asked trackers for more peers") }, Modifier.weight(1f),
+                    "Announce", TbIcons.Repeat, { onControl(ControlOp.Torrent.REANNOUNCE, "Asked trackers for more peers") }, Modifier.weight(1f),
                     enabled = !busy && (item.state.isActive || item.state == TransferState.SEEDING),
                 )
             }
@@ -467,17 +476,22 @@ private fun stats(item: Transfer): List<Stat> = buildList {
         add(Stat("Time left", Format.eta(item.etaSeconds)))
     }
     if (item.kind == TransferKind.TORRENT) {
-        add(Stat("Seeds", item.seeds.toString()))
-        add(Stat("Peers", item.peers.toString()))
-        add(Stat("Ratio", Format.ratio(item.ratio)))
-        add(Stat("Uploaded", if (item.totalUploaded > 0) Format.bytes(item.totalUploaded) else "—"))
+        // Swarm figures only mean something while the torrent is connected to peers.
+        val connected = item.state.isActive || item.state == TransferState.SEEDING
+        if (connected || item.seeds > 0 || item.peers > 0) {
+            add(Stat("Seeds", Format.count(item.seeds)))
+            add(Stat("Peers", Format.count(item.peers)))
+        }
+        if (item.totalUploaded > 0 || item.ratio > 0 || item.state == TransferState.SEEDING) {
+            add(Stat("Ratio", Format.ratio(item.ratio)))
+            add(Stat("Uploaded", if (item.totalUploaded > 0) Format.bytes(item.totalUploaded) else "—"))
+        }
         if (item.state == TransferState.SEEDING) add(Stat("Upload speed", Format.speed(item.uploadSpeed)))
-        if (item.availability > 0) add(Stat("Availability", String.format(java.util.Locale.US, "%.2f", item.availability)))
+        if (connected && item.availability > 0) add(Stat("Availability", String.format(java.util.Locale.US, "%.2f", item.availability)))
     }
-    add(Stat("Added", Format.dateTime(item.createdAt)))
+    add(Stat("Added", Format.shortDateTime(item.createdAt)))
     add(Stat("Updated", Format.relative(item.updatedAt)))
     item.expiresAt?.let { add(Stat("Expires", Format.date(it))) }
-    item.tracker?.takeIf { it.isNotBlank() }?.let { add(Stat("Tracker", it.substringAfter("://").substringBefore('/'))) }
 }
 
 @Composable

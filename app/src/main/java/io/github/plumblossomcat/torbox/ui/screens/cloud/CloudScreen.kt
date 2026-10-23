@@ -196,7 +196,7 @@ fun CloudContent(
                                 subtitle = when {
                                     connected -> "Connected"
                                     provider.tokenRequired -> "Not connected"
-                                    else -> "Optional — uploads anonymously without a key"
+                                    else -> "Optional key"
                                 },
                                 icon = TbIcons.Cloud,
                                 iconTint = if (connected) Tb.colors.signalInk else Tb.colors.inkMuted,
@@ -281,7 +281,7 @@ private fun JobRow(job: IntegrationJobDto, onCancel: (IntegrationJobDto) -> Unit
         }
         if (job.isActive) {
             Spacer(Modifier.height(10.dp))
-            Meter(job.fraction.takeIf { it > 0f }, color = c.meterFor(io.github.plumblossomcat.torbox.core.model.TransferState.DOWNLOADING))
+            Meter(modifier = Modifier.padding(end = Gutter - 8.dp), progress = job.fraction.takeIf { it > 0f }, color = c.meterFor(io.github.plumblossomcat.torbox.core.model.TransferState.DOWNLOADING))
         }
         job.detail?.takeIf { it.isNotBlank() }?.let {
             Spacer(Modifier.height(6.dp))

@@ -39,6 +39,21 @@ import io.github.plumblossomcat.torbox.core.util.Format
 import io.github.plumblossomcat.torbox.ui.theme.Tb
 import io.github.plumblossomcat.torbox.ui.theme.TbIcons
 
+/** TorBox passes through raw client states; these read better as words. */
+fun humanState(raw: String): String? {
+    val s = raw.trim()
+    if (s.isEmpty()) return null
+    return when (s.lowercase()) {
+        "metadl", "metadata" -> "Fetching metadata"
+        "checkingresumedata", "checkingdl", "checkingup" -> "Checking data"
+        "moving" -> "Moving files"
+        "allocating" -> "Allocating space"
+        "queueddl" -> "Queued"
+        "processing" -> "Processing"
+        else -> s.replaceFirstChar { it.uppercase() }
+    }
+}
+
 /** "1.24 GB · 12 files · 2d ago" */
 fun Transfer.metaLine(): String {
     val bytes = size
@@ -57,7 +72,7 @@ fun Transfer.liveLine(): String? = when (state) {
         if (downloadSpeed > 0) add("↓ ${Format.speed(downloadSpeed)}")
         if (etaSeconds > 0 && Format.eta(etaSeconds) != "—") add("${Format.eta(etaSeconds)} left")
     }.joinToString("  ·  ")
-    TransferState.PREPARING -> if (progress > 0) "${Format.percent(progress)}  ·  ${rawState.ifBlank { "Preparing" }}" else rawState.ifBlank { "Preparing" }
+    TransferState.PREPARING -> (humanState(rawState) ?: "Preparing").let { if (progress > 0) "${Format.percent(progress)}  ·  $it" else it }
     TransferState.STALLED -> "${Format.percent(progress)}  ·  waiting for peers" + if (peers > 0) " ($peers connected)" else ""
     TransferState.SEEDING -> buildList {
         if (uploadSpeed > 0) add("↑ ${Format.speed(uploadSpeed)}")
@@ -66,7 +81,7 @@ fun Transfer.liveLine(): String? = when (state) {
     }.joinToString("  ·  ")
     TransferState.PAUSED -> if (progress in 0.0..0.999) "${Format.percent(progress)}  ·  paused" else null
     TransferState.QUEUED -> "Waiting for a free slot"
-    TransferState.FAILED -> errorMessage ?: rawState.takeIf { it.isNotBlank() && !it.equals("failed", true) }
+    TransferState.FAILED -> errorMessage ?: rawState.takeIf { it.isNotBlank() && !it.equals("failed", true) }?.let(::humanState)
     TransferState.READY -> null
 }
 
@@ -168,7 +183,7 @@ fun ActionTile(label: String, detail: String, icon: ImageVector, onClick: () -> 
             Modifier
                 .size(32.dp)
                 .clip(RoundedCornerShape(9.dp))
-                .background(c.sunken),
+                .background(if (c.isDark) c.hairline else c.sunken),
             contentAlignment = Alignment.Center,
         ) {
             Icon(icon, null, tint = c.ink, modifier = Modifier.size(17.dp))

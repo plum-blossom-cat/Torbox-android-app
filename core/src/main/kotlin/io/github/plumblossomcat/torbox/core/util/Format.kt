@@ -72,6 +72,14 @@ object Format {
     fun dateTime(instant: Instant?, zone: ZoneId = ZoneId.systemDefault()): String =
         instant?.let { DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm", Locale.US).withZone(zone).format(it) } ?: "—"
 
+    /** "23 Oct, 19:39" this year, "23 Oct 2024, 19:39" otherwise. */
+    fun shortDateTime(instant: Instant?, now: Instant = Instant.now(), zone: ZoneId = ZoneId.systemDefault()): String {
+        instant ?: return "—"
+        val sameYear = instant.atZone(zone).year == now.atZone(zone).year
+        val pattern = if (sameYear) "d MMM, HH:mm" else "d MMM yyyy, HH:mm"
+        return DateTimeFormatter.ofPattern(pattern, Locale.US).withZone(zone).format(instant)
+    }
+
     /** Whole days until [instant], never negative. */
     fun daysUntil(instant: Instant?, now: Instant = Instant.now()): Long? =
         instant?.let { Duration.between(now, it).toDays().coerceAtLeast(0) }

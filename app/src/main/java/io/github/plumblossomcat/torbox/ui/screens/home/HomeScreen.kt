@@ -197,7 +197,7 @@ fun HomeContent(
                     item(key = "empty") {
                         EmptyState(
                             title = "Nothing here yet",
-                            body = "Add a magnet link, an NZB or a web link and it will show up here the moment TorBox starts on it.",
+                            body = "Add a magnet link, an NZB or any web link. It appears here the moment TorBox starts working on it.",
                             action = "Add your first download",
                             onAction = { onAdd(null) },
                         )

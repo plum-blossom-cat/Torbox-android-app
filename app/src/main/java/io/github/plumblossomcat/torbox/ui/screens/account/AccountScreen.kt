@@ -145,7 +145,7 @@ fun AccountContent(
 
     PullToRefreshBox(isRefreshing = refreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-            ScreenHeader("Account", eyebrow = user?.email ?: "Your TorBox")
+            ScreenHeader("Account", eyebrow = user?.let { "${it.planLabel} plan" } ?: "Your TorBox")
             if (error != null && user == null) {
                 Notice(error, action = "Retry", onAction = onRefresh)
                 Spacer(Modifier.height(16.dp))
@@ -181,6 +181,7 @@ fun AccountContent(
                 PanelRow(
                     title = "Your referral code",
                     subtitle = code ?: "Not available",
+                    subtitleMono = code != null,
                     icon = TbIcons.Gift,
                     trailing = if (code != null) {
                         {

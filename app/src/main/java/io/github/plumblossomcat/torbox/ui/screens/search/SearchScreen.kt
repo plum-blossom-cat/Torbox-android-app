@@ -419,7 +419,7 @@ private fun ResultRow(row: SearchTorrentDto, adding: Boolean, added: Boolean, on
         Modifier
             .fillMaxWidth()
             .pressable(interaction, onClick = onClick)
-            .padding(start = Gutter, end = Gutter - 6.dp, top = 14.dp, bottom = 14.dp),
+            .padding(start = Gutter, end = Gutter - 3.dp, top = 14.dp, bottom = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
@@ -431,7 +431,7 @@ private fun ResultRow(row: SearchTorrentDto, adding: Boolean, added: Boolean, on
                 Text(
                     listOfNotNull(
                         Format.bytes(row.size).takeIf { row.size > 0 },
-                        row.lastKnownSeeders.takeIf { it >= 0 }?.let { "↑ $it" },
+                        row.lastKnownSeeders.takeIf { it >= 0 }?.let { "↑ ${Format.count(it)}" },
                         row.age,
                         row.tracker,
                     ).joinToString("  ·  "),

@@ -173,7 +173,7 @@ fun ListRow(
                 Modifier
                     .size(36.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Tb.colors.sunken),
+                    .background(if (Tb.colors.isDark) Tb.colors.hairline else Tb.colors.sunken),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(icon, null, tint = iconTint, modifier = Modifier.size(18.dp))
@@ -214,6 +214,7 @@ fun PanelRow(
     title: String,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    subtitleMono: Boolean = false,
     icon: ImageVector? = null,
     titleColor: Color = Tb.colors.ink,
     iconTint: Color = Tb.colors.ink,
@@ -239,7 +240,7 @@ fun PanelRow(
             Text(title, style = Tb.type.subtitle, color = titleColor, maxLines = 2, overflow = TextOverflow.Ellipsis)
             if (subtitle != null) {
                 Spacer(Modifier.height(2.dp))
-                Text(subtitle, style = Tb.type.bodySmall, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Text(subtitle, style = if (subtitleMono) Tb.type.monoSmall else Tb.type.bodySmall, maxLines = 3, overflow = TextOverflow.Ellipsis)
             }
         }
         if (trailing != null) {
