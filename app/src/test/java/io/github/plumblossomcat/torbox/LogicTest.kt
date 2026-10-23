@@ -33,7 +33,7 @@ class LogicTest {
             listOf(f(1, "Show/S01/E01.mkv"), f(2, "Show/S01/E02.mkv"), f(3, "Show/poster.jpg")),
             collapsed = emptySet(),
         )
-        assertThat(rows.map { it.depth to (it as? TreeRow.Folder)?.name ?: (it as TreeRow.Leaf).file.name })
+        assertThat(rows.map { it.depth to ((it as? TreeRow.Folder)?.name ?: (it as TreeRow.Leaf).file.name) })
             .containsExactly(0 to "S01", 1 to "E01.mkv", 1 to "E02.mkv", 0 to "poster.jpg").inOrder()
         val folder = rows.first() as TreeRow.Folder
         assertThat(folder.fileCount).isEqualTo(2)
