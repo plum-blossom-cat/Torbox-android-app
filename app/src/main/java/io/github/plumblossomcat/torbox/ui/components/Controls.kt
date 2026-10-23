@@ -34,7 +34,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -123,7 +122,7 @@ fun TbButton(
     ) {
         val tint = if (enabled) fg else c.inkFaint
         if (loading) {
-            CircularProgressIndicator(Modifier.size(16.dp), color = tint, strokeWidth = 2.dp)
+            Spinner(tint, Modifier.size(16.dp))
             Spacer(Modifier.width(10.dp))
         } else if (icon != null) {
             Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(if (compact) 16.dp else 18.dp))
@@ -302,7 +301,9 @@ fun Meter(
     height: Dp = 3.dp,
 ) {
     val animated by animateFloatAsState((progress ?: 0f).coerceIn(0f, 1f), tween(500), label = "meter")
-    val sweep = if (progress == null) {
+    val sweep = if (progress == null && Motion.reduced) {
+        0.35f
+    } else if (progress == null) {
         val t = rememberInfiniteTransition(label = "indeterminate")
         t.animateFloat(0f, 1f, infiniteRepeatable(tween(1300, easing = LinearEasing), RepeatMode.Restart), label = "sweep").value
     } else {
@@ -333,7 +334,7 @@ fun Meter(
 fun StateBadge(state: TransferState, modifier: Modifier = Modifier, text: String = state.label) {
     val color = Tb.colors.forState(state)
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        if (state == TransferState.DOWNLOADING || state == TransferState.PREPARING) {
+        if ((state == TransferState.DOWNLOADING || state == TransferState.PREPARING) && !Motion.reduced) {
             PulsingDot(color)
         } else {
             Box(Modifier.size(6.dp).clip(CircleShape).background(color))

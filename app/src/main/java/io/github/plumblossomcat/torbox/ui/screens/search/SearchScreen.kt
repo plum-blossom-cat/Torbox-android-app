@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,6 +64,7 @@ import io.github.plumblossomcat.torbox.ui.components.LocalToaster
 import io.github.plumblossomcat.torbox.ui.components.ScreenHeader
 import io.github.plumblossomcat.torbox.ui.components.SectionHeader
 import io.github.plumblossomcat.torbox.ui.components.SheetHeader
+import io.github.plumblossomcat.torbox.ui.components.Spinner
 import io.github.plumblossomcat.torbox.ui.components.SkeletonRows
 import io.github.plumblossomcat.torbox.ui.components.Stat
 import io.github.plumblossomcat.torbox.ui.components.StatGrid
@@ -444,7 +444,7 @@ private fun ResultRow(row: SearchTorrentDto, adding: Boolean, added: Boolean, on
         Spacer(Modifier.width(8.dp))
         Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
             when {
-                adding -> CircularProgressIndicator(Modifier.size(18.dp), color = c.ink, strokeWidth = 2.dp)
+                adding -> Spinner(c.ink, Modifier.size(18.dp))
                 added -> Icon(TbIcons.Check, "Added", tint = c.signalInk, modifier = Modifier.size(20.dp))
                 else -> TbIconButton(TbIcons.Add, "Add to TorBox", onAdd, filled = true, size = 38.dp)
             }

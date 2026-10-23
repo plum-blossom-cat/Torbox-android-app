@@ -22,7 +22,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,6 +53,7 @@ import io.github.plumblossomcat.torbox.ui.components.Labeled
 import io.github.plumblossomcat.torbox.ui.components.LocalToaster
 import io.github.plumblossomcat.torbox.ui.components.OptionRow
 import io.github.plumblossomcat.torbox.ui.components.Segmented
+import io.github.plumblossomcat.torbox.ui.components.Spinner
 import io.github.plumblossomcat.torbox.ui.components.TbButton
 import io.github.plumblossomcat.torbox.ui.components.TbIconButton
 import io.github.plumblossomcat.torbox.ui.components.TbLink
@@ -300,7 +300,7 @@ private fun CacheLine(status: CacheStatus) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 0.dp)) {
             when (status) {
                 CacheStatus.Checking -> {
-                    CircularProgressIndicator(Modifier.size(12.dp), color = c.inkMuted, strokeWidth = 1.5.dp)
+                    Spinner(c.inkMuted, Modifier.size(12.dp))
                     Spacer(Modifier.width(10.dp))
                     Text("Checking TorBox's cache…", style = Tb.type.bodySmall)
                 }

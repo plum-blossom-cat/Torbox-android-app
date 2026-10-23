@@ -69,7 +69,7 @@ class ScreensScreenshotTest(private val dark: Boolean) {
                     HomeState(
                         user = Samples.user,
                         active = all.filter { it.state.isActive },
-                        recent = all.sortedByDescending { it.createdAt }.take(6),
+                        recent = all.filterNot { it.state.isActive }.sortedByDescending { it.createdAt }.take(6),
                         total = all.size,
                         loaded = true,
                         unread = 2,

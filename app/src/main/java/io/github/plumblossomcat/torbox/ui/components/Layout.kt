@@ -354,8 +354,12 @@ fun Notice(text: String, modifier: Modifier = Modifier, tone: Color = Tb.colors.
 
 @Composable
 fun SkeletonBlock(modifier: Modifier = Modifier) {
-    val t = rememberInfiniteTransition(label = "skeleton")
-    val alpha by t.animateFloat(0.45f, 1f, infiniteRepeatable(tween(850, easing = LinearEasing), RepeatMode.Reverse), label = "a")
+    val alpha = if (Motion.reduced) {
+        0.8f
+    } else {
+        val t = rememberInfiniteTransition(label = "skeleton")
+        t.animateFloat(0.45f, 1f, infiniteRepeatable(tween(850, easing = LinearEasing), RepeatMode.Reverse), label = "a").value
+    }
     Box(
         modifier
             .clip(RoundedCornerShape(6.dp))

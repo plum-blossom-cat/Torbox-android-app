@@ -13,7 +13,7 @@ import javax.crypto.spec.GCMParameterSpec
  * Encrypts small secrets (the API key, cloud tokens) with an AES-GCM key that never leaves the
  * Android Keystore. Ciphertext is stored as `base64(iv):base64(data)`.
  */
-class SecretBox(private val alias: String = "torbox.secrets") {
+open class SecretBox(private val alias: String = "torbox.secrets") {
 
     private fun key(): SecretKey {
         val store = KeyStore.getInstance(KEYSTORE).apply { load(null) }
@@ -29,7 +29,7 @@ class SecretBox(private val alias: String = "torbox.secrets") {
         return generator.generateKey()
     }
 
-    fun seal(plain: String): String {
+    open fun seal(plain: String): String {
         val cipher = Cipher.getInstance(TRANSFORM)
         cipher.init(Cipher.ENCRYPT_MODE, key())
         val data = cipher.doFinal(plain.toByteArray(Charsets.UTF_8))
@@ -37,7 +37,7 @@ class SecretBox(private val alias: String = "torbox.secrets") {
     }
 
     /** Returns null when the value can't be decrypted (e.g. the keystore was reset). */
-    fun open(sealed: String): String? = runCatching {
+    open fun open(sealed: String): String? = runCatching {
         val (iv, data) = sealed.split(':', limit = 2).let { it[0] to it[1] }
         val cipher = Cipher.getInstance(TRANSFORM)
         cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, unb64(iv)))

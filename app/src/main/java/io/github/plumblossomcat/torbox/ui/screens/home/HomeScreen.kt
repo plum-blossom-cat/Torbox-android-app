@@ -89,7 +89,8 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
             user = user,
             userError = userError,
             active = all.filter { it.state.isActive }.sortedByDescending { it.progress },
-            recent = all.sortedByDescending { it.createdAt }.take(6),
+            // Anything in progress is already listed above, so "recent" shows the rest.
+            recent = all.filterNot { it.state.isActive }.sortedByDescending { it.createdAt }.take(6),
             total = all.size,
             loaded = library.values.all { it.loaded },
             refreshing = library.values.any { it.refreshing },

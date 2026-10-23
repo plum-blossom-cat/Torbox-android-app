@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -63,6 +62,7 @@ import io.github.plumblossomcat.torbox.ui.components.Meter
 import io.github.plumblossomcat.torbox.ui.components.SectionHeader
 import io.github.plumblossomcat.torbox.ui.components.SheetAction
 import io.github.plumblossomcat.torbox.ui.components.SheetHeader
+import io.github.plumblossomcat.torbox.ui.components.Spinner
 import io.github.plumblossomcat.torbox.ui.components.SkeletonBlock
 import io.github.plumblossomcat.torbox.ui.components.Stat
 import io.github.plumblossomcat.torbox.ui.components.StatGrid
@@ -449,7 +449,7 @@ private fun StripButton(
             contentAlignment = Alignment.Center,
         ) {
             if (loading) {
-                CircularProgressIndicator(Modifier.size(16.dp), color = if (emphasis) c.onSignal else tint, strokeWidth = 2.dp)
+                Spinner(if (emphasis) c.onSignal else tint, Modifier.size(16.dp))
             } else {
                 Icon(icon, null, tint = if (emphasis && enabled) c.onSignal else tint, modifier = Modifier.size(19.dp))
             }
@@ -559,7 +559,7 @@ private fun FileRow(row: TreeRow.Leaf, ready: Boolean, preparing: Boolean, onCli
         Spacer(Modifier.width(8.dp))
         Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
             if (preparing) {
-                CircularProgressIndicator(Modifier.size(16.dp), color = c.ink, strokeWidth = 2.dp)
+                Spinner(c.ink, Modifier.size(16.dp))
             } else {
                 Icon(TbIcons.Download, if (ready) "Download ${file.name}" else null, tint = if (ready) c.ink else c.inkFaint.copy(alpha = 0.5f), modifier = Modifier.size(18.dp))
             }
