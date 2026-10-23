@@ -124,7 +124,7 @@ class AddViewModel(private val container: AppContainer, initialKind: TransferKin
                 _form.update { it.copy(error = "Choose a $expected file.") }
                 return@launch
             }
-            _form.update { it.copy(file = file, error = null, name = it.name.ifBlank { "" }) }
+            _form.update { it.copy(file = file, error = null) }
         }
     }
 
