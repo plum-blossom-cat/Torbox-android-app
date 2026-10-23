@@ -7,6 +7,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: android-${{ github.ref }}
   cancel-in-progress: true
@@ -26,10 +29,16 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Unit tests and screenshots
-        run: ./gradlew --stacktrace :core:test :app:recordRoborazziDebug
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew --console=plain :core:test :app:recordRoborazziDebug 2>&1 | tee test.log
 
       - name: Build APKs
-        run: ./gradlew --stacktrace :app:assembleDebug :app:assembleRelease
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew --console=plain :app:assembleDebug :app:assembleRelease 2>&1 | tee assemble.log
 
       - name: Upload APKs
         uses: actions/upload-artifact@v4
@@ -37,12 +46,20 @@ jobs:
           name: apks
           path: app/build/outputs/apk/**/*.apk
 
-      - name: Upload screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: screenshots
-          path: docs/screenshots
+      - name: Commit screenshots
+        if: always() && github.event_name == 'push'
+        shell: bash
+        run: |
+          [ -d docs/screenshots ] || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/screenshots
+          if git diff --cached --quiet; then echo "Screenshots unchanged"; exit 0; fi
+          git commit -m "Update screenshots [skip ci]"
+          for i in 1 2 3; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && break
+            sleep 5
+          done
 
       - name: Upload reports
         if: failure()
@@ -52,3 +69,13 @@ jobs:
           path: |
             **/build/reports
             **/build/test-results
+
+      - name: Error summary
+        if: failure()
+        shell: bash
+        run: |
+          for f in test.log assemble.log; do
+            [ -f "$f" ] || continue
+            echo "===== $f"
+            grep -E "^e: |What went wrong|FAILED|AssertionError|Exception:|Caused by|expected" -A3 "$f" | grep -vE "^\s+at |^--$" | head -120
+          done
