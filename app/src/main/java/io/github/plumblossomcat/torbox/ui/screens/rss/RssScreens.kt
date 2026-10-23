@@ -166,7 +166,7 @@ fun RssContent(
         TbSheet({ menuFor = null }) {
             SheetHeader(feed.name, feed.url)
             val close: (() -> Unit) -> () -> Unit = { action -> { menuFor = null; action() } }
-            SheetAction("View scraped items", TbIcons.List, close { onItems(feed) })
+            SheetAction("View scraped items", TbIcons.Inbox, close { onItems(feed) })
             SheetAction("Check now", TbIcons.Refresh, close { onControl(feed, "update") })
             if (feed.status.equals("paused", true)) {
                 SheetAction("Resume", TbIcons.Play, close { onControl(feed, "resume") })

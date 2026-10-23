@@ -241,7 +241,7 @@ fun MainNav() {
 }
 
 @Composable
-private fun BottomBar(destination: NavDestination?, onSelect: (Any) -> Unit) {
+internal fun BottomBar(destination: NavDestination?, onSelect: (Any) -> Unit) {
     val c = Tb.colors
     Column(
         Modifier
