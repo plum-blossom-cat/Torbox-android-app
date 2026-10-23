@@ -22,6 +22,9 @@ import io.github.plumblossomcat.torbox.ui.theme.TorBoxTheme
 private const val DIR = "../docs/screenshots"
 
 fun ComposeContentTestRule.shoot(name: String, dark: Boolean, content: @Composable () -> Unit) {
+    // Pulsing dots, indeterminate meters and skeletons animate forever, so the clock is driven
+    // by hand: let entrance animations settle, then capture a frame.
+    mainClock.autoAdvance = false
     setContent {
         TorBoxTheme(if (dark) ThemeMode.DARK else ThemeMode.LIGHT) {
             val scope = rememberCoroutineScope()
@@ -31,6 +34,6 @@ fun ComposeContentTestRule.shoot(name: String, dark: Boolean, content: @Composab
             }
         }
     }
-    waitForIdle()
+    mainClock.advanceTimeBy(1_500)
     onRoot().captureRoboImage("$DIR/${name}_${if (dark) "dark" else "light"}.png")
 }
