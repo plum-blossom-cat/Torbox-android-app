@@ -1,4 +1,4 @@
-name: Probe dependency versions
+name: Probe TorBox API
 on:
   workflow_dispatch:
   push:
@@ -7,11 +7,23 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Latest stable versions
+      - name: Docs site
         run: |
-          g() { curl -sL "https://dl.google.com/dl/android/maven2/$1/maven-metadata.xml" | grep -oE '<version>[^<]+' | sed 's/<version>//' | grep -vE 'alpha|beta|rc|dev' | tail -4 | tr '\n' ' '; echo " <= $1"; }
-          c() { curl -sL "https://repo1.maven.org/maven2/$1/maven-metadata.xml" | grep -oE '<version>[^<]+' | sed 's/<version>//' | grep -vE 'alpha|beta|rc|dev|RC|Beta' | tail -4 | tr '\n' ' '; echo " <= $1"; }
-          for a in com/android/tools/build/gradle androidx/compose/compose-bom androidx/compose/material3/material3 androidx/activity/activity-compose androidx/core/core-ktx androidx/lifecycle/lifecycle-runtime-compose androidx/navigation/navigation-compose androidx/datastore/datastore-preferences androidx/work/work-runtime-ktx androidx/browser/browser androidx/core/core-splashscreen androidx/test/ext/junit androidx/compose/ui/ui-test-junit4 androidx/compose/material/material-icons-extended; do g $a; done
-          for a in org/jetbrains/kotlin/kotlin-gradle-plugin org/jetbrains/kotlinx/kotlinx-serialization-json org/jetbrains/kotlinx/kotlinx-coroutines-android com/squareup/okhttp3/okhttp io/coil-kt/coil3/coil-compose org/robolectric/robolectric io/github/takahirom/roborazzi/roborazzi com/composables/icons-lucide com/composables/icons-lucide-android; do c $a; done
-          echo; echo "AGP 8.13 / 9.x release info:"; curl -sL https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/maven-metadata.xml | grep -oE '<version>(8\.1[2-9]|9\.)[^<]+' | tr '\n' ' '
-          echo; echo "BOM 2025+:"; curl -sL https://dl.google.com/dl/android/maven2/androidx/compose/compose-bom/maven-metadata.xml | grep -oE '<version>202[5-6][^<]+' | tr '\n' ' '
+          curl -sL https://api-docs.torbox.app/ -o docs.html; wc -c docs.html
+          grep -oE '(href|src)="[^"]+"' docs.html | head -40
+          grep -oiE '[a-z0-9/_.-]*(openapi|swagger|spec)[a-z0-9/_.-]*\.(json|yaml|yml)' docs.html | sort -u | head
+          for u in openapi.json swagger.json api/openapi.json docs/openapi.json openapi.yaml llms.txt llms-full.txt sitemap.xml; do printf "%s " $u; curl -s -o /dev/null -w "%{http_code} %{content_type}\n" https://api-docs.torbox.app/$u; done
+      - name: llms.txt
+        run: curl -sL https://api-docs.torbox.app/llms.txt | head -c 6000; echo
+      - name: Live unauthenticated endpoints
+        run: |
+          j(){ echo "=== $1"; curl -sL "$1" | head -c ${2:-1500}; echo; }
+          j https://api.torbox.app/
+          j https://api.torbox.app/v1/api/stats
+          j https://api.torbox.app/v1/api/changelogs/json 1200
+          j "https://api.torbox.app/v1/api/speedtest?test_length=short" 2500
+          j "https://api.torbox.app/v1/api/torrents/torrentinfo?hash=dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&timeout=10" 1500
+          j https://api.torbox.app/v1/api/webdl/hosters 1200
+          j https://api.torbox.app/v1/api/user/me 400
+          j https://search-api.torbox.app/ 800
+          j "https://search-api.torbox.app/torrents/search/sintel?metadata=true" 600
