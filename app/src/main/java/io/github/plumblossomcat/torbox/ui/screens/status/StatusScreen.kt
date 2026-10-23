@@ -248,8 +248,12 @@ private fun SpeedCard(speed: SpeedTest, onToggle: () -> Unit) {
         }
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
-                mbps?.let { if (it >= 100) "%.0f".format(java.util.Locale.US, it) else "%.1f".format(java.util.Locale.US, it) } ?: "—",
-                style = Tb.type.figure.copy(fontSize = Tb.type.display.fontSize, lineHeight = Tb.type.display.lineHeight),
+                mbps?.let { if (it >= 100) "%.0f".format(java.util.Locale.US, it) else "%.1f".format(java.util.Locale.US, it) } ?: "0.0",
+                style = Tb.type.figure.copy(
+                    fontSize = Tb.type.display.fontSize,
+                    lineHeight = Tb.type.display.lineHeight,
+                    color = if (mbps == null) c.inkFaint else c.ink,
+                ),
             )
             Spacer(Modifier.width(8.dp))
             Text("Mbps", style = Tb.type.mono.copy(color = c.inkMuted), modifier = Modifier.padding(bottom = 8.dp))

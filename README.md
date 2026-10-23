@@ -40,9 +40,10 @@ notifications and your account — with a calm, editorial interface designed for
 - **Cloud uploads**: connect accounts and follow upload jobs with live progress
 - **Notifications** from TorBox, with clear, clear-all and test
 - **Account**: plan, renewal, totals, referral code (copy/share), redeem a referral
-- **Supported hosts** with status and daily limits, **service status** with network statistics, and the **changelog**
+- **Supported hosts** with status and daily limits, **service status** with network statistics and a live
+  **download speed test** against TorBox's CDN, and the **changelog**
 - Optional background alerts when a download finishes
-- Light, dark or system theme
+- Light, dark or system theme; looping animations stop when Android's "Remove animations" is on
 
 ## Design
 
@@ -55,6 +56,12 @@ The app is built on a small, deliberate design system rather than stock Material
 - **Lucide** stroke icons, hairline dividers instead of heavy cards, and typographic empty states instead of clip-art.
 
 Every screen is rendered in light and dark on each CI run; see [`docs/screenshots`](docs/screenshots).
+
+| | | |
+| --- | --- | --- |
+| <img src="docs/screenshots/01_login_light.png" width="220" alt="Sign in"> | <img src="docs/screenshots/03_library_dark.png" width="220" alt="Library"> | <img src="docs/screenshots/04_detail_light.png" width="220" alt="Download detail"> |
+| <img src="docs/screenshots/05_add_dark.png" width="220" alt="Add a download"> | <img src="docs/screenshots/07_account_light.png" width="220" alt="Account"> | <img src="docs/screenshots/12_cloud_dark.png" width="220" alt="Cloud uploads"> |
+| <img src="docs/screenshots/11_rss_light.png" width="220" alt="RSS feeds"> | <img src="docs/screenshots/14_status_dark.png" width="220" alt="Service status and speed test"> | <img src="docs/screenshots/08_settings_light.png" width="220" alt="Settings"> |
 
 ## Getting started
 
@@ -70,7 +77,8 @@ Requirements: JDK 17+ and the Android SDK (platform 36). Then:
 ```sh
 ./gradlew :app:assembleDebug        # app/build/outputs/apk/debug/
 ./gradlew :core:test                # API client unit tests
-./gradlew :app:recordRoborazziDebug # re-render every screen into docs/screenshots
+./gradlew :app:recordRoborazziDebug # app tests: logic, an end-to-end smoke test against a fake
+                                    # TorBox server, and every screen re-rendered into docs/screenshots
 ```
 
 The release build is minified and, for convenience, signed with the debug key. Configure your own signing
