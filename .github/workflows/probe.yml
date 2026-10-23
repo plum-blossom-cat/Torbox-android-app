@@ -15,7 +15,10 @@ jobs:
           jq -r '
             def walk_items(p): .[] | if .item then (.item | walk_items(p + [.name])) else {p: (p|join(" / ")), n: .name, r: .request} end;
             (.item // .collection.item) | walk_items([]) |
-            "\(.p) | \(.n) | \(.r.method) \((.r.url.raw // .r.url // "") | tostring | sub("\\{\\{[a-z_]+\\}\\}";"")) | q=\([.r.url.query[]?.key] | join(",")) | b=\(.r.body.mode // "-"):\(([.r.body.formdata[]?.key] + [.r.body.urlencoded[]?.key]) | join(","))\(.r.body.raw // "" | gsub("\\s+";" ") | .[0:160])"
+            (.r.url | if type == "object" then (.raw // "") else (. // "") end) as $u |
+            (.r.url | if type == "object" then [.query[]?.key] else [] end) as $q |
+            (.r.body // {}) as $b |
+            "\(.p) | \(.n) | \(.r.method) \($u | sub("\\{\\{[a-z_]+\\}\\}";"")) | q=\($q | join(",")) | b=\($b.mode // "-"):\(([$b.formdata[]?.key] + [$b.urlencoded[]?.key]) | join(","))\($b.raw // "" | gsub("\\s+";" ") | .[0:200])"
           ' col.json
       - name: Descriptions of selected endpoints
         run: |
