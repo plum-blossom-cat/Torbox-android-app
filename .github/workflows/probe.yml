@@ -7,27 +7,19 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Official API collection (api-docs.torbox.app)
+      - name: Fetch collection
         run: |
           curl -sL --max-time 30 "https://api-docs.torbox.app/api/collections/29572726/2s9YXo1zX4?environment=29572726-1b0d18ed-d45c-43f1-ad3f-253c7d41f915&segregateAuth=true&versionTag=latest" -o col.json
-          wc -c col.json; jq -r 'keys' col.json | tr -d '\n'; echo
-          # One line per request: folder path, method, url, query keys, body keys
-          jq -r '
-            def walk_items(p): .[] | if .item then (.item | walk_items(p + [.name])) else {p: (p|join(" / ")), n: .name, r: .request} end;
-            (.item // .collection.item) | walk_items([]) |
-            (.r.url | if type == "object" then (.raw // "") else (. // "") end) as $u |
-            (.r.url | if type == "object" then [.query[]?.key] else [] end) as $q |
-            (.r.body // {}) as $b |
-            "\(.p) | \(.n) | \(.r.method) \($u | sub("\\{\\{[a-z_]+\\}\\}";"")) | q=\($q | join(",")) | b=\($b.mode // "-"):\(([$b.formdata[]?.key] + [$b.urlencoded[]?.key]) | join(","))\($b.raw // "" | gsub("\\s+";" ") | .[0:200])"
-          ' col.json
-      - name: Descriptions of selected endpoints
+          jq -r '.info.description // "" | gsub("\\s+";" ") | .[0:1500]' col.json
+          jq -r '.item[] | "FOLDER: \(.name) (\(.item | length? // 0))"' col.json
+          grep -o 'search-api[^"\\ ]*' col.json | sort -u | head
+          grep -oi 'integration/[a-z0-9_/]*' col.json | sort -u | head -30
+      - name: Bodies and response examples
         run: |
           jq -r '
             def walk_items: .[] | if .item then (.item | walk_items) else . end;
-            (.item // .collection.item) | walk_items |
-            select(.name | test("Control|Search|Settings|Edit|Stream|Subscription|Transaction|Device|Engine|Vendor|Integration|Usenet Download|Web Download|Create Torrent|Queued"; "i")) |
-            "### \(.name)\n\((.request.description // "") | tostring | gsub("\\s+";" ") | .[0:900])\n"
-          ' col.json | head -c 60000
-      - name: Live response shapes
-        run: |
-          curl -s --max-time 20 https://api.torbox.app/v1/api/changelogs/json | jq -c '.data[0] | with_entries(.value |= (tostring | .[0:40]))'
+            .item | walk_items |
+            select(.name | test("^(Edit User Settings|Get User Data|Start Device Code|Get Token From Device|Get Referral Data|Get Subscriptions|Get Transactions|Get User Stats|Create Stream|Get Stream Data|Get News Server|Reset News Server|Edit Torrent Item|Get Torrent List|Get Usenet List|Get Web Download List|Get Notification Feed|Get All Jobs|Get Queued Downloads|Get User RSS Feeds|Get RSS Feed Items|Control Usenet Download|Control Torrent|Create Torrent|Get Torrent Cached Availability$|Request Download Link)")) |
+            "######## \(.name)\nBODY: \((.request.body.raw // "") | gsub("\\s+";" ") | .[0:2500])\n" +
+            ([.response[]? | "-- example \(.name) [\(.code)]: \((.body // "") | gsub("\\s+";" ") | .[0:1800])"] | .[0:2] | join("\n"))
+          ' col.json
