@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "error": null,
+  "detail": "Found 2 results.",
+  "data": {
+    "metadata": { "id": "imdb:tt1727587", "title": "Sintel", "description": "A lonely young woman searches for a baby dragon.", "image": "https://example.com/p.jpg", "type": "movie", "releaseYears": 2010, "rating": "7.4", "genres": ["Animation", "Short"] },
+    "torrents": [
+      { "hash": "08ada5a7a6183aae1e09d831df6748d566095a10", "raw_title": "Sintel.2010.1080p.mkv", "title": "Sintel", "magnet": "magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10", "last_known_seeders": 120, "last_known_peers": 4, "size": 1290000000, "tracker": "example", "categories": ["Movies"], "files": 2, "type": "torrent", "age": "4y", "cached": true, "owned": false, "title_parsed_data": {"resolution": "1080p"} },
+      { "hash": "abc", "raw_title": "Sintel.2010.720p", "magnet": null, "last_known_seeders": null, "size": "700000000", "cached": false, "owned": true }
+    ]
+  }
+}

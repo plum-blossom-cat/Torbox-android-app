@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="paper">#F2F0E9</color>
+    <color name="ink">#0D0D0B</color>
+    <color name="signal">#CCF547</color>
+    <color name="icon_bg">#141412</color>
+    <color name="splash_mark">#141412</color>
+</resources>

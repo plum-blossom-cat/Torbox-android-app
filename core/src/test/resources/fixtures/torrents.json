@@ -1,0 +1,69 @@
+{
+  "success": true,
+  "error": null,
+  "detail": "Torrent list retrieved successfully.",
+  "data": [
+    {
+      "id": 4021,
+      "auth_id": "abc",
+      "server": 12,
+      "hash": "dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c",
+      "name": "Big Buck Bunny",
+      "magnet": "magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Big+Buck+Bunny",
+      "size": 276445467,
+      "active": false,
+      "created_at": "2025-03-01T10:15:30.123456Z",
+      "updated_at": "2025-03-01 10:20:00",
+      "download_state": "cached",
+      "seeds": 0,
+      "peers": "0",
+      "ratio": 0,
+      "progress": 1,
+      "download_speed": 0,
+      "upload_speed": 0,
+      "eta": 0,
+      "torrent_file": true,
+      "expires_at": null,
+      "download_present": true,
+      "download_finished": true,
+      "files": [
+        { "id": 0, "md5": null, "hash": "x", "name": "Big Buck Bunny/Big Buck Bunny.en.srt", "size": "140", "zipped": false, "s3_path": "a/b", "infected": false, "mimetype": "application/x-subrip", "short_name": "Big Buck Bunny.en.srt", "absolute_path": "/x" },
+        { "id": 1, "md5": null, "hash": "y", "name": "Big Buck Bunny/Big Buck Bunny.mp4", "size": 276134947, "zipped": false, "s3_path": "a/c", "infected": false, "mimetype": "video/mp4", "short_name": "Big Buck Bunny.mp4", "absolute_path": "/y" }
+      ],
+      "inactive_check": 0,
+      "availability": 1.0,
+      "some_new_field": {"nested": true}
+    },
+    {
+      "id": "4022",
+      "hash": "08ada5a7a6183aae1e09d831df6748d566095a10",
+      "name": "Sintel",
+      "size": 129241752,
+      "active": 1,
+      "created_at": "2025-03-02T08:00:00+00:00",
+      "download_state": "stalled (no seeds)",
+      "seeds": 0,
+      "peers": 3,
+      "progress": 0.42,
+      "download_speed": 0,
+      "upload_speed": 0,
+      "eta": 8640000,
+      "download_present": false,
+      "download_finished": false,
+      "files": null
+    },
+    {
+      "id": 4023,
+      "hash": "c9e15763f722f23e98a29decdfae341b98d53056",
+      "name": "Tears of Steel",
+      "size": 571016192,
+      "active": true,
+      "download_state": "uploading",
+      "progress": 1.0,
+      "download_present": true,
+      "download_finished": true,
+      "upload_speed": 1048576,
+      "ratio": 1.37
+    }
+  ]
+}

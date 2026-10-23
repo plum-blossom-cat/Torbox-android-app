@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TorBox</string>
+    <string name="channel_completed">Finished downloads</string>
+    <string name="channel_completed_desc">Tells you when something in your TorBox library is ready.</string>
+</resources>
