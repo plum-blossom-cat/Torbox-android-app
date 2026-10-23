@@ -108,17 +108,17 @@ private fun stripHtml(html: String): String =
 
 /** Just enough Markdown for changelog notes: headings, bullets, bold, inline code and links. */
 fun renderMarkdown(text: String): AnnotatedString = buildAnnotatedString {
-    val lines = text.lines().map { it.trimEnd() }.dropWhile { it.isBlank() }.dropLastWhile { it.isBlank() }
-    var previousBlank = false
-    lines.forEachIndexed { i, raw ->
+    var first = true
+    var paragraphBreak = false
+    text.lines().forEach { raw ->
         val line = raw.trim()
         if (line.isBlank()) {
-            if (!previousBlank && i > 0) append("\n")
-            previousBlank = true
-            return@forEachIndexed
+            if (!first) paragraphBreak = true
+            return@forEach
         }
-        previousBlank = false
-        if (length > 0 && !endsWithNewline()) append("\n")
+        if (!first) append(if (paragraphBreak) "\n\n" else "\n")
+        first = false
+        paragraphBreak = false
         when {
             line.startsWith("#") -> withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { inline(line.trimStart('#').trim()) }
             line.startsWith("- ") || line.startsWith("* ") || line.startsWith("+ ") -> {
@@ -129,8 +129,6 @@ fun renderMarkdown(text: String): AnnotatedString = buildAnnotatedString {
         }
     }
 }
-
-private fun AnnotatedString.Builder.endsWithNewline(): Boolean = toAnnotatedString().text.endsWith("\n")
 
 private val INLINE = Regex("\\*\\*(.+?)\\*\\*|__(.+?)__|`([^`]+)`|\\[([^\\]]+)]\\(([^)]+)\\)")
 

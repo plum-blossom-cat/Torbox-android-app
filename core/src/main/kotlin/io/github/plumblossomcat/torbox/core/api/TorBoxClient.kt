@@ -408,6 +408,12 @@ class TorBoxClient(
         return parse { TorBoxJson.decodeFromJsonElement(ListSerializer(ChangelogDto.serializer()), data.asArray()) }
     }
 
+    /** CDN test files, closest region first. */
+    suspend fun speedtestServers(long: Boolean = false): List<SpeedServer> {
+        val url = api("speedtest") { addQueryParameter("test_length", if (long) "long" else "short") }
+        return SpeedtestParser.parse(envelope(execute(Request.Builder().url(url).get().build())))
+    }
+
     /* ---------------------------------------------------------------- search */
 
     suspend fun searchTorrents(query: String): SearchResultDto = search("torrents", query)

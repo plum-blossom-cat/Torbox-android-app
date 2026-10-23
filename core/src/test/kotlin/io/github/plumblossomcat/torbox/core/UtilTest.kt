@@ -85,3 +85,22 @@ class UtilTest {
         assertThat(s("Repairing")).isEqualTo(TransferState.PREPARING)
     }
 }
+
+class SpeedtestParserTest {
+    private fun parse(json: String) =
+        io.github.plumblossomcat.torbox.core.api.SpeedtestParser.parse(io.github.plumblossomcat.torbox.core.api.TorBoxJson.parseToJsonElement(json))
+
+    @Test
+    fun parsesListWithDomainAndPath() {
+        val servers = parse("""[{"region":"eu","name":"Amsterdam","domain":"ams.cdn.example","path":"/speedtest/100mb.bin","closest":false},{"region":"us","name":"Dallas","url":"https://dal.cdn.example/100mb.bin","closest":true}]""")
+        assertThat(servers.map { it.name }).containsExactly("Dallas", "Amsterdam").inOrder()
+        assertThat(servers[1].url).isEqualTo("https://ams.cdn.example/speedtest/100mb.bin")
+    }
+
+    @Test
+    fun parsesObjectKeyedByRegion() {
+        val servers = parse("""{"europe":[{"server":"fra-1","link":"https://fra.example/f.bin"}],"asia":{"server":"sgp-1","url":"https://sgp.example/f.bin"}}""")
+        assertThat(servers.map { it.region }).containsExactly("europe", "asia")
+        assertThat(servers.map { it.name }).containsExactly("fra-1", "sgp-1")
+    }
+}
