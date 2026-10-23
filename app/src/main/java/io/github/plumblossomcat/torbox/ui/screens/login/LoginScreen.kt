@@ -2,6 +2,7 @@ package io.github.plumblossomcat.torbox.ui.screens.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -156,7 +157,8 @@ fun LoginContent(
                 Modifier
                     .size(30.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFF141412)),
+                    .background(Color(0xFF141412))
+                    .border(1.dp, if (c.isDark) c.hairlineStrong else Color.Transparent, RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(painterResource(R.drawable.ic_launcher_foreground), null, Modifier.size(30.dp))

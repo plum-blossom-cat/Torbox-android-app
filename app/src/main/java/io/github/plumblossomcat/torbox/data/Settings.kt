@@ -47,6 +47,7 @@ class SettingsStore(private val context: Context, private val secrets: SecretBox
         val notify = booleanPreferencesKey("notify_complete")
         val searches = stringPreferencesKey("recent_searches")
         val knownDone = stringSetPreferencesKey("known_done")
+        val lastSeenNotification = androidx.datastore.preferences.core.longPreferencesKey("last_seen_notification")
         fun integration(p: IntegrationProvider) = stringPreferencesKey("integration_${p.name.lowercase()}")
     }
 
@@ -102,10 +103,15 @@ class SettingsStore(private val context: Context, private val secrets: SecretBox
 
     suspend fun setKnownDone(keys: Set<String>) = context.store.edit { it[Keys.knownDone] = keys }
 
+    suspend fun lastSeenNotification(): Long = context.store.data.first()[Keys.lastSeenNotification] ?: 0L
+
+    suspend fun setLastSeenNotification(id: Long) = context.store.edit { it[Keys.lastSeenNotification] = id }
+
     /** Signing out forgets everything tied to the account but keeps appearance preferences. */
     suspend fun clearAccount() = context.store.edit { p ->
         p.remove(Keys.apiKey)
         p.remove(Keys.knownDone)
+        p.remove(Keys.lastSeenNotification)
         p.remove(Keys.searches)
         IntegrationProvider.entries.forEach { p.remove(Keys.integration(it)) }
     }

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class AccountRepository(private val client: TorBoxClient, private val session: Session) {
+class AccountRepository(private val client: TorBoxClient, private val session: Session, private val settings: SettingsStore) {
     private val _user = MutableStateFlow<UserDto?>(null)
     val user: StateFlow<UserDto?> = _user.asStateFlow()
 
@@ -14,7 +14,7 @@ class AccountRepository(private val client: TorBoxClient, private val session: S
     val error: StateFlow<String?> = _error.asStateFlow()
 
     private val _unread = MutableStateFlow(0)
-    /** Count of notifications on the account; there is no read state in the API, so this is "not cleared". */
+    /** Notifications newer than the last one seen in the app. The API has no read state of its own. */
     val unread: StateFlow<Int> = _unread.asStateFlow()
 
     suspend fun refresh() {
@@ -28,11 +28,13 @@ class AccountRepository(private val client: TorBoxClient, private val session: S
     }
 
     suspend fun refreshUnread() {
-        runCatching { client.notifications().size }.onSuccess { _unread.value = it }
+        val seen = settings.lastSeenNotification()
+        runCatching { client.notifications() }.onSuccess { list -> _unread.value = list.count { it.id > seen } }
     }
 
-    fun setUnread(count: Int) {
-        _unread.value = count
+    suspend fun markSeen(latestId: Long) {
+        if (latestId > settings.lastSeenNotification()) settings.setLastSeenNotification(latestId)
+        _unread.value = 0
     }
 
     fun set(user: UserDto) {

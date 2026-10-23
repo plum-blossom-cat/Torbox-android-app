@@ -54,7 +54,7 @@ class AppContainer(context: Context) {
     val session = Session(settings, scope)
     val client = TorBoxClient(http, token = { session.key })
     val library = LibraryRepository(client, session)
-    val account = AccountRepository(client, session)
+    val account = AccountRepository(client, session, settings)
     val device = DeviceActions(context.applicationContext)
 
     /** Hand-offs from intents to the UI. Consumed (set back to null) once handled. */
