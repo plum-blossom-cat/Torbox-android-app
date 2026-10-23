@@ -9,15 +9,15 @@ jobs:
     steps:
       - name: Docs site
         run: |
-          curl -sL https://api-docs.torbox.app/ -o docs.html; wc -c docs.html
+          curl -sL --max-time 25 https://api-docs.torbox.app/ -o docs.html; wc -c docs.html
           grep -oE '(href|src)="[^"]+"' docs.html | head -40
           grep -oiE '[a-z0-9/_.-]*(openapi|swagger|spec)[a-z0-9/_.-]*\.(json|yaml|yml)' docs.html | sort -u | head
-          for u in openapi.json swagger.json api/openapi.json docs/openapi.json openapi.yaml llms.txt llms-full.txt sitemap.xml; do printf "%s " $u; curl -s -o /dev/null -w "%{http_code} %{content_type}\n" https://api-docs.torbox.app/$u; done
+          for u in openapi.json swagger.json api/openapi.json docs/openapi.json openapi.yaml llms.txt llms-full.txt sitemap.xml; do printf "%s " $u; curl -s --max-time 15 -o /dev/null -w "%{http_code} %{content_type}\n" https://api-docs.torbox.app/$u; done
       - name: llms.txt
-        run: curl -sL https://api-docs.torbox.app/llms.txt | head -c 6000; echo
+        run: curl -sL --max-time 25 https://api-docs.torbox.app/llms.txt | head -c 6000; echo
       - name: Live unauthenticated endpoints
         run: |
-          j(){ echo "=== $1"; curl -sL "$1" | head -c ${2:-1500}; echo; }
+          j(){ echo "=== $1"; curl -sL --max-time 25 "$1" | head -c ${2:-1500}; echo; }
           j https://api.torbox.app/
           j https://api.torbox.app/v1/api/stats
           j https://api.torbox.app/v1/api/changelogs/json 1200
