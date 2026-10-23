@@ -486,7 +486,6 @@ fun TbSnackbar(data: SnackbarData) {
         modifier = Modifier.padding(horizontal = 12.dp),
         containerColor = Tb.colors.ink,
         contentColor = Tb.colors.background,
-        actionColor = Tb.colors.signal,
         shape = RoundedCornerShape(14.dp),
         action = data.visuals.actionLabel?.let { label ->
             {

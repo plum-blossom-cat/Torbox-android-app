@@ -40,11 +40,15 @@ import io.github.plumblossomcat.torbox.ui.theme.Tb
 import io.github.plumblossomcat.torbox.ui.theme.TbIcons
 
 /** "1.24 GB · 12 files · 2d ago" */
-fun Transfer.metaLine(): String = buildList {
-    add(if (size > 0) Format.bytes(size) else "Size unknown")
-    if (files.isNotEmpty()) add(if (files.size == 1) "1 file" else "${files.size} files")
-    add(Format.relative(createdAt))
-}.joinToString("  ·  ")
+fun Transfer.metaLine(): String {
+    val bytes = size
+    val fileCount = files.size
+    return buildList {
+        add(if (bytes > 0) Format.bytes(bytes) else "Size unknown")
+        if (fileCount > 0) add(if (fileCount == 1) "1 file" else "$fileCount files")
+        add(Format.relative(createdAt))
+    }.joinToString("  ·  ")
+}
 
 /** "42%  ·  ↓ 12.3 MB/s  ·  4m 05s left" */
 fun Transfer.liveLine(): String? = when (state) {
